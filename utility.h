@@ -51,6 +51,7 @@ class FlightInfo
                 }
 
     char getArvOrDpt() {return arvOrDpt;}
+    string getCallsign() {return this->callsign;}
 
 };
 
@@ -69,6 +70,8 @@ public:
 
     }
     string getIcaoCode() {return this->icaoCode;}
+    vector<FlightInfo*> getArivals(){return this->arrivals;}
+    vector<FlightInfo*> getDepartures(){return this->departures;}
 
     void addFlightToAirport(FlightInfo& flight)
     {
@@ -99,7 +102,10 @@ class AllAirports
 
 //Main Functions
 AllAirports* load_db();
-SingleAirport* getFlightsByAirportName(AllAirports& airports, string& airportName);
+SingleAirport& getFlightsByAirportName(AllAirports& airports, string& airportName);
+vector<FlightInfo*> getFlightsByCallsign(AllAirports& airports, string& callsign);
+void regenerate_db(AllAirports** airportsPtr);
+
 //Helpers
 void updateAirportDataFlights(SingleAirport& currentAirport, string& path);
 void getAllPaths(vector<string> & paths);

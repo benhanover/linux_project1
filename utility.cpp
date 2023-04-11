@@ -3,8 +3,11 @@
 int main()
 {
     AllAirports* airports = load_db();
-    string testAirportName = "EGKK";
-    getFlightsByAirportName(*airports, testAirportName);
+    // string testAirportName = "EGKK", testCallsignSHT9X = "SHT9X";
+    // SingleAirport EGKK = getFlightsByAirportName(*airports, testAirportName);
+
+    // vector<FlightInfo*> SHT9X = getFlightsByCallsign(*airports, testCallsignSHT9X);
+    regenerate_db(&airports);
     return 0;
 }
 
@@ -12,6 +15,15 @@ int main()
 //Main Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void regenerate_db(AllAirports** airportsPtr)
+{
+    AllAirports* airports = *airportsPtr;
+    free(airports);
+
+    system("/home/benos/Desktop/project/clean.sh");
+system("/home/benos/Desktop/project/flightScanner.sh EGGW LLBG EGKK EGLL");
+    airports = load_db();
+}
 AllAirports* load_db() {
     AllAirports* airports = new AllAirports();
     vector<string> paths;
@@ -35,17 +47,31 @@ AllAirports* load_db() {
     return airports;
 }
 
-SingleAirport* getFlightsByAirportName(AllAirports& airports, string& airportName) {
+SingleAirport& getFlightsByAirportName(AllAirports& airports, string& airportName) {
     for (auto& airport : airports.getAirportsVector())
     {
         if (airport->getIcaoCode() == airportName) {
-            cout << "Found" << endl;
+            return *airport;
         }
     }
-
-
 }
 
+vector<FlightInfo*> getFlightsByCallsign(AllAirports& airports, string& callsign) {
+    vector<FlightInfo*> flightsByCallsign;
+
+    for (auto &airport : airports.getAirportsVector())
+    {
+        // arrivals
+        for (auto &flightInfo : airport->getArivals())
+            if (flightInfo->getCallsign() == callsign)
+                flightsByCallsign.push_back(flightInfo);
+        // departures
+        for (auto &flightInfo : airport->getDepartures())
+            if (flightInfo->getCallsign() == callsign)
+                flightsByCallsign.push_back(flightInfo);
+    }
+    return flightsByCallsign;
+}
 
 //Helpers functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
