@@ -1,0 +1,1 @@
+rm -r EGGW/ LLBG/ EGKK/ EGLL/
