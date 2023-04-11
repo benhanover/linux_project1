@@ -1,5 +1,54 @@
 #include "utility.h"
 
+int main()
+{
+    AllAirports* airports = load_db();
+    string testAirportName = "EGKK";
+    getFlightsByAirportName(*airports, testAirportName);
+    return 0;
+}
+
+
+//Main Functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+AllAirports* load_db() {
+    AllAirports* airports = new AllAirports();
+    vector<string> paths;
+    
+    getAllPaths(paths);
+    //for each airport there are 2 paths (apt, dpt)
+    int numberOfAirports = paths.size() / 2;
+
+    for (int i = 0; i < numberOfAirports; i++)
+    {
+        //the order of the paths 0 - airport1, 1 - airport1, 2 - airport2, 3 - airport2...
+        SingleAirport* currentAirport = new SingleAirport(getAirportName(paths[2*i]));
+
+        //one of calls below is for .apt and the second is .dpt - unorginized order
+        updateAirportDataFlights(*currentAirport, paths[2 * i]);
+        updateAirportDataFlights(*currentAirport, paths[(2 * i) + 1]);
+
+        airports->getAirportsVector().push_back(currentAirport);
+ 
+    }
+    return airports;
+}
+
+SingleAirport* getFlightsByAirportName(AllAirports& airports, string& airportName) {
+    for (auto& airport : airports.getAirportsVector())
+    {
+        if (airport->getIcaoCode() == airportName) {
+            cout << "Found" << endl;
+        }
+    }
+
+
+}
+
+
+//Helpers functions
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void updateAirportDataFlights(SingleAirport& currentAirport, string& path)
 {
@@ -13,7 +62,7 @@ void updateAirportDataFlights(SingleAirport& currentAirport, string& path)
 
     // skip the first line
     getline(currentFile, currentLine);
-    
+        
 
     while (currentFile) {
         getline(currentFile, currentLine);
@@ -23,7 +72,6 @@ void updateAirportDataFlights(SingleAirport& currentAirport, string& path)
 
     }
 }
-
 
 //problems with nulls - inserting last flight values
 FlightInfo* getCurrentFlightInfo(char* currentLine, string& pathType) {
@@ -133,31 +181,6 @@ void getAllPaths(vector<string> & paths)
     }
 }
 
-void load_db() {
-    AllAirports airports;
-    vector<string> paths;
-    
-    getAllPaths(paths);
-    //for each airport there are 2 paths (apt, dpt)
-    int numberOfAirports = paths.size() / 2;
-    airports.getAirportsVector().reserve(numberOfAirports);
-//   port0          port1           port2         path3
-//path0  path1   path2 path3    path4 path5   path6  path7
-
-
-
-    for (int i = 0; i < numberOfAirports; i++)
-    {
-        SingleAirport* currentAirport = new SingleAirport(getAirportName(paths[2*i]));
-
-        updateAirportDataFlights(*currentAirport, paths[2 * i]);
-        updateAirportDataFlights(*currentAirport, paths[(2 * i) + 1]);
-
-        airports.getAirportsVector().push_back(currentAirport);
- 
-    }
-        cout << "gg";
-}
 
 string getAirportName(string& path) {
     string airportName;
@@ -175,34 +198,6 @@ string getPathType(string& path)
     pathType = path.substr(dotPos + 1, 3);
     return pathType;
 }
-
-
-int main()
-{
-    load_db();
-    return 0;
-}
-
-
-// int main()
-// {
-// FlightInfo f1('a', "40750c", 1680990127, "LPPT", 1680997781, "EGGW", "WUK28FL", 391, 23,1470,68,2,5);
-// FlightInfo f2('d',"406752", 1680984976, "null", 1680997594, "EGGW", "EZY38UV", 0,0, 1535,61,0,5);
-
-// Airport EGKK("EGKK");
-// EGKK.addFlightToAirport(f1);
-// EGKK.addFlightToAirport(f2);
-
-// Airports airports; 
-// airports.addAirport(EGKK);
-
-
-
-// return 0;
-// }
-
-
-//
 
 
 

@@ -97,7 +97,10 @@ class AllAirports
 
 };
 
-
+//Main Functions
+AllAirports* load_db();
+SingleAirport* getFlightsByAirportName(AllAirports& airports, string& airportName);
+//Helpers
 void updateAirportDataFlights(SingleAirport& currentAirport, string& path);
 void getAllPaths(vector<string> & paths);
 string getAirportName(string& path);
