@@ -11,8 +11,6 @@ using namespace std;
 namespace fs = std::filesystem;
 
 
-
-
 class FlightInfo
 {
     char arvOrDpt; //'a' for arrival, 'd' for departure
@@ -112,3 +110,4 @@ void getAllPaths(vector<string> & paths);
 string getAirportName(string& path);
 string getPathType(string& path);
 FlightInfo* getCurrentFlightInfo(char* currentLine, string& pathType);
+void getAllAirportsNames(AllAirports& airports, vector<string>& airportNames);

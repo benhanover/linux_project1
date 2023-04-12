@@ -3,10 +3,9 @@
 int main()
 {
     AllAirports* airports = load_db();
-    // string testAirportName = "EGKK", testCallsignSHT9X = "SHT9X";
-    // SingleAirport EGKK = getFlightsByAirportName(*airports, testAirportName);
-
-    // vector<FlightInfo*> SHT9X = getFlightsByCallsign(*airports, testCallsignSHT9X);
+    string testAirportName = "EGKK", testCallsignSHT9X = "SHT9X";
+    SingleAirport EGKK = getFlightsByAirportName(*airports, testAirportName);
+    vector<FlightInfo*> SHT9X = getFlightsByCallsign(*airports, testCallsignSHT9X);
     regenerate_db(&airports);
     return 0;
 }
@@ -18,12 +17,21 @@ int main()
 void regenerate_db(AllAirports** airportsPtr)
 {
     AllAirports* airports = *airportsPtr;
+    vector<string> airportsNamesVector;
+    getAllAirportsNames(*airports,airportsNamesVector );
     free(airports);
+    string projectPath = "/home/benos/Desktop/project/";
+    string airportNames = "";
+    for (auto& name:airportsNamesVector) 
+        airportNames += name += " ";
 
-    system("/home/benos/Desktop/project/clean.sh");
-system("/home/benos/Desktop/project/flightScanner.sh EGGW LLBG EGKK EGLL");
+    //delete previos DB
+    system((projectPath + "clean.sh").c_str());
+    // create data base
+    system(((projectPath + "flightScanner.sh ") += airportNames).c_str());
     airports = load_db();
 }
+
 AllAirports* load_db() {
     AllAirports* airports = new AllAirports();
     vector<string> paths;
@@ -228,3 +236,7 @@ string getPathType(string& path)
 
 
    
+void getAllAirportsNames(AllAirports& airports, vector<string>& airportsNamesVector) { 
+    for (auto& airport: airports.getAirportsVector())
+       airportsNamesVector.push_back(airport->getIcaoCode());
+}
