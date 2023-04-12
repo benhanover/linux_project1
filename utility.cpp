@@ -20,7 +20,7 @@ void regenerate_db(AllAirports** airportsPtr)
     vector<string> airportsNamesVector;
     getAllAirportsNames(*airports,airportsNamesVector );
     free(airports);
-    string projectPath = "/home/benos/Desktop/project/";
+    string projectPath = "/home/meir/Desktop/project/";
     string airportNames = "";
     for (auto& name:airportsNamesVector) 
         airportNames += name += " ";
