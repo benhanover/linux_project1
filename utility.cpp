@@ -1,7 +1,7 @@
 #include "utility.h"
 
 #define nullNumFlag -1
-
+//test
 int main()
 {
     AllAirports airports;
@@ -38,8 +38,8 @@ void SupportFunctions::regenerate_db()
     load_db();
 }
 
-void SupportFunctions::load_db(&AllAirports airport) {
-    AllAirports* airports = new AllAirports();
+void SupportFunctions::load_db(&AllAirports airports) {
+    airports = new AllAirports();
     vector<string> paths;
 
     vector<SingleAirport*> airpoprtsVector = airports->getAirportsVector();
