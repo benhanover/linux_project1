@@ -1,7 +1,7 @@
 #include "utility.h"
 
 #define nullNumFlag -1
-//test
+
 int main()
 {
     AllAirports airports;
@@ -13,6 +13,8 @@ int main()
     airports.regenerate_db();
     return 0;
 }
+
+//test
 
 
 //Main Functions
