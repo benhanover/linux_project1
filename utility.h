@@ -9,7 +9,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-class FlightInfo
+class FlightInfo : public SingleAirport
 {
     char arvOrDpt;
     string icao24;
@@ -113,9 +113,10 @@ public:
 class SupportFunctions
 {
     public:
-    string getPathType(string &path);
+    bool loaded_DB;
+    static string getPathType(string &path);
     void getAllPaths(vector<string> &paths);
-    string getAirportName(string &path);
-    friend void load_db();
+    string getAirportNameFromPath(string &path);
+    void load_db(AllAirports* airports);
     void regenerate_db();
 };

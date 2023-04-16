@@ -6,7 +6,7 @@ int main()
 {
     AllAirports airports;
     //AllAirports* airports;
-    SupportFunctions::load_db(airports);
+    SupportFunctions load_db(&airports);
     string testAirportName = "EGKK", testCallsignSHT9X = "SHT9X";
     SingleAirport EGKK = airports.getFlightsByAirportName(testAirportName);
     vector<FlightInfo*> SHT9X = airports.getFlightsByCallsign(testCallsignSHT9X);
@@ -40,7 +40,7 @@ void SupportFunctions::regenerate_db()
     load_db();
 }
 
-void SupportFunctions::load_db(&AllAirports airports) {
+void SupportFunctions::load_db(AllAirports* airports) {
     airports = new AllAirports();
     vector<string> paths;
 
@@ -56,14 +56,13 @@ void SupportFunctions::load_db(&AllAirports airports) {
         SingleAirport* currentAirport = new SingleAirport(getAirportNameFromPath(paths[2*i]));
 
         //one of calls below is for .apt and the second is .dpt - unorginized order
-        updateAirportDataFlights(*currentAirport, paths[2 * i]);
-        updateAirportDataFlights(*currentAirport, paths[(2 * i) + 1]);
+        currentAirport->updateAirportDataFlights(paths[2 * i]);
+        currentAirport->updateAirportDataFlights(paths[(2 * i) + 1]);
 
         airpoprtsVector.push_back(currentAirport);
  
     }
     loaded_DB = true;
-    allAirportsPtr = airports;
 }
 
 SingleAirport& AllAirports::getAirportByName(string& airportName) {

@@ -4,6 +4,7 @@
         "filesystem": "cpp",
         "iostream": "cpp",
         "new": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iosfwd": "cpp"
     }
 }
