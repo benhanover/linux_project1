@@ -1,0 +1,25 @@
+1.	Receive airport ICOA code names and output(print) a table of which airports have flights to the given airports and the flight details. 
+input : airport icao code names
+plan : go threw all input airoport and print the 
+
+function: getFlightsByAirportName
+
+2.	Receive airport name and output(print) the full airport schedule containing both arrivals and departures ordered by time.
+
+function: getFlightsByAirportName
+
+3.	Receive list of aircraft names(icao24) and output(print) all flights (departures and arrivals) that it did.
+
+function: create a new function..
+
+
+4. Program that updates the existing airports in the DB with recent data(rerun BASH script).
+
+function: regenrate data base
+
+
+sum up -
+
+- load DB
+- regenratge DB
+- getFlightsByAirportName 

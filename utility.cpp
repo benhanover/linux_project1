@@ -4,13 +4,13 @@
 
 int main()
 {
-    SystemManagerClass system;
+    AllAirports airports;
     //AllAirports* airports;
-    system.load_db();
+    SupportFunctions::load_db(airports);
     string testAirportName = "EGKK", testCallsignSHT9X = "SHT9X";
-    SingleAirport EGKK = system.getFlightsByAirportName(testAirportName);
-    vector<FlightInfo*> SHT9X = system.getFlightsByCallsign(testCallsignSHT9X);
-    system.regenerate_db();
+    SingleAirport EGKK = airports.getFlightsByAirportName(testAirportName);
+    vector<FlightInfo*> SHT9X = airports.getFlightsByCallsign(testCallsignSHT9X);
+    airports.regenerate_db();
     return 0;
 }
 
@@ -18,9 +18,9 @@ int main()
 //Main Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SystemManagerClass::regenerate_db()
+void SupportFunctions::regenerate_db()
 {
-    AllAirports* airports = this->allAirportsPtr;
+    AllAirports* airports = allAirportsPtr;
     vector<string> airportsNamesVector;
     getAllAirportsNames(airportsNamesVector);
     delete airports; //destructor will free all allocated memory
@@ -35,14 +35,14 @@ void SystemManagerClass::regenerate_db()
     system(((projectPath + "/clean.sh ") += airportNames).c_str());
     //create data base
     system(((projectPath + "/flightScanner.sh ") += airportNames).c_str());
-    this->load_db();
+    load_db();
 }
 
-void SystemManagerClass::load_db() {
+void SupportFunctions::load_db(&AllAirports airport) {
     AllAirports* airports = new AllAirports();
     vector<string> paths;
 
-    vector<SingleAirport*>& airpoprtsVector = airports->getAirportsVector();
+    vector<SingleAirport*> airpoprtsVector = airports->getAirportsVector();
 
     getAllPaths(paths);
     //for each airport there are 2 paths (apt, dpt)
@@ -51,7 +51,7 @@ void SystemManagerClass::load_db() {
     for (int i = 0; i < numberOfAirports; i++)
     {
         //the order of the paths 0 - airport1, 1 - airport1, 2 - airport2, 3 - airport2...
-        SingleAirport* currentAirport = new SingleAirport(getAirportName(paths[2*i]));
+        SingleAirport* currentAirport = new SingleAirport(getAirportNameFromPath(paths[2*i]));
 
         //one of calls below is for .apt and the second is .dpt - unorginized order
         updateAirportDataFlights(*currentAirport, paths[2 * i]);
@@ -60,18 +60,16 @@ void SystemManagerClass::load_db() {
         airpoprtsVector.push_back(currentAirport);
  
     }
-    this->loaded_DB = true;
-    this->allAirportsPtr = airports;
+    loaded_DB = true;
+    allAirportsPtr = airports;
 }
 
-SingleAirport& SystemManagerClass::getFlightsByAirportName(string& airportName) {
+SingleAirport& AllAirports::getAirportByName(string& airportName) {
 
-    if (this->loaded_DB == false)
-        this->load_db();
+    //if (loaded_DB == false)
+      //  load_db();
     
-    vector<SingleAirport*>& allAirports = this->allAirportsPtr->getAirportsVector();
-
-        for (auto& airport : allAirports)
+    for (auto& airport : this->airportsVector)
     {
         if (airport->getIcaoCode() == airportName)
             return *airport;
@@ -81,17 +79,12 @@ SingleAirport& SystemManagerClass::getFlightsByAirportName(string& airportName) 
     
 }
 
-vector<FlightInfo*> SystemManagerClass::getFlightsByCallsign(string& callsign)
+vector<FlightInfo*> AllAirports::getFlightsByCallsign(string& callsign)
 {    
     vector<FlightInfo*> flightsByCallsign;
 
-    if (this->loaded_DB == false)
-        this->load_db();
 
-    vector<SingleAirport*>& allAirports = this->allAirportsPtr->getAirportsVector();
-
-
-    for (auto &airport : allAirports)
+    for (auto &airport : airportsVector)
     {
         // arrivals
         for (auto &flightInfo : airport->getArivals())
@@ -110,11 +103,11 @@ vector<FlightInfo*> SystemManagerClass::getFlightsByCallsign(string& callsign)
 
 //Helpers functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void SystemManagerClass::updateAirportDataFlights(SingleAirport& currentAirport, string& path)
+void SingleAirport::updateAirportDataFlights(string& path)
 {
     string currentLine;
-    string pathType = getPathType(path);
+    //apt / dpt
+    string pathType = SupportFunctions::getPathType(path);
     ifstream currentFile(path);
 
     if (!currentFile.is_open()) {
@@ -125,11 +118,12 @@ void SystemManagerClass::updateAirportDataFlights(SingleAirport& currentAirport,
     getline(currentFile, currentLine);
         
 
-    while (currentFile) {
+    while (currentFile)
+    {
         getline(currentFile, currentLine);
         char* currentLineAsChar = (char*)currentLine.c_str();
-        FlightInfo* currentFlightInfo = getCurrentFlightInfo(currentLineAsChar, pathType);
-        currentAirport.addFlightToAirport(*currentFlightInfo);
+        FlightInfo* currentFlightInfo = FlightInfo::getCurrentFlightInfo(currentLineAsChar, pathType);
+        addFlightToAirport(*currentFlightInfo);
 
     }
 
@@ -142,12 +136,11 @@ void SystemManagerClass::updateAirportDataFlights(SingleAirport& currentAirport,
 ///////********what if currentLine is empty? error message? ********
 
 //problems with nulls - inserting last flight values
-FlightInfo* SystemManagerClass::getCurrentFlightInfo(char* currentLine, string& pathType) {
+FlightInfo* FlightInfo::getCurrentFlightInfo(char* currentLine, string& pathType) {
     const char delim[] = ", ";
     // all needed variables for FlightInfo
     string icao24, estDepartureAirport, estArrivalAirport, callsign;
-    int firstSeen, lastSeen, estDptAirportHorizDistance, estDptAirportVertDistance, estArvAirportHorizDistance,
-    estArvAirportVertDistance, dptAirportCandidatesCount, arvAirportCandidatesCount;
+    int firstSeen, lastSeen;
 
     char* token = strtok(currentLine, delim);
     int countTokens = 0;
@@ -180,42 +173,6 @@ FlightInfo* SystemManagerClass::getCurrentFlightInfo(char* currentLine, string& 
         case 6:
             callsign = token;
             break;
-        case 7:
-            if (strcmp(token, "null") != 0)
-                estDptAirportHorizDistance = stoi(token);
-            else 
-                estDptAirportHorizDistance = nullNumFlag;
-            break;
-        case 8:
-            if (strcmp(token, "null") != 0)
-                estDptAirportVertDistance = stoi(token);
-            else 
-                estDptAirportVertDistance = nullNumFlag;
-            break;
-        case 9:
-            if (strcmp(token, "null") != 0)
-                estArvAirportHorizDistance = stoi(token);
-            else 
-                estArvAirportHorizDistance = nullNumFlag;
-            break;
-        case 10:
-            if (strcmp(token, "null") != 0)
-                estArvAirportVertDistance = stoi(token);
-            else
-                estArvAirportVertDistance = nullNumFlag;
-            break;
-        case 11:
-            if (strcmp(token, "null") != 0)
-                dptAirportCandidatesCount = stoi(token);
-            else 
-                dptAirportCandidatesCount - nullNumFlag;
-            break;
-        case 12:
-            if (strcmp(token, "null") != 0)
-                arvAirportCandidatesCount = stoi(token);
-            else
-                arvAirportCandidatesCount = nullNumFlag;  
-            break;
         default:
             cout << "switch case overflow" << endl;
             break;
@@ -223,18 +180,16 @@ FlightInfo* SystemManagerClass::getCurrentFlightInfo(char* currentLine, string& 
 
         token = strtok(nullptr, delim);
     }
-    if (pathType == "apt") {
-        return new FlightInfo('a', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign,
-                            estDptAirportHorizDistance, estDptAirportVertDistance, estArvAirportHorizDistance,
-                            estArvAirportVertDistance, dptAirportCandidatesCount, arvAirportCandidatesCount);
-    } else {
-        return new FlightInfo('d', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign,
-                            estDptAirportHorizDistance, estDptAirportVertDistance, estArvAirportHorizDistance,
-                            estArvAirportVertDistance, dptAirportCandidatesCount, arvAirportCandidatesCount);
+    if (pathType == "apt")
+    {
+        return new FlightInfo('a', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign);
+    } else
+    {
+        return new FlightInfo('d', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign);
     }
 }
 
-void SystemManagerClass::getAllPaths(vector<string> & paths)
+void SupportFunctions::getAllPaths(vector<string> & paths)
 {
     fs::path currentPath = fs::current_path();
     string path = currentPath;
@@ -254,7 +209,7 @@ void SystemManagerClass::getAllPaths(vector<string> & paths)
 }
 
 
-string SystemManagerClass::getAirportName(string& path) {
+string SupportFunctions::getAirportNameFromPath(string& path) {
     string airportName;
     size_t lastSlashPos = path.find_last_of("/");
     airportName = path.substr(lastSlashPos + 1);
@@ -263,7 +218,7 @@ string SystemManagerClass::getAirportName(string& path) {
     return airportName;
 }
 
-string SystemManagerClass::getPathType(string& path)
+string SupportFunctions::getPathType(string& path)
 {
     string pathType;
     size_t dotPos = path.find_last_of(".");
@@ -273,11 +228,11 @@ string SystemManagerClass::getPathType(string& path)
 
 
 
-   
-void SystemManagerClass::getAllAirportsNames(vector<string>& airportsNamesVector) { 
+void AllAirports::getAllAirportsNames(vector<string>& airportsNamesVector) { 
     
-    vector<SingleAirport*>& allAirports = this->allAirportsPtr->getAirportsVector();
     
-    for (auto& airport: allAirports)
+    for (auto& airport: airportsVector)
        airportsNamesVector.push_back(airport->getIcaoCode());
 }
+
+// /home/...../EGGK/EKKL.apt
