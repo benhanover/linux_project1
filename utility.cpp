@@ -4,28 +4,24 @@
 
 int main()
 {
-    AllAirports airports;
-    //AllAirports* airports;
-    SupportFunctions load_db(&airports);
+    System airports;
+    airports.load_db();
     string testAirportName = "EGKK", testCallsignSHT9X = "SHT9X";
-    SingleAirport EGKK = airports.getFlightsByAirportName(testAirportName);
+    //SingleAirport EGKK = airports.getFlightsByAirportName(testAirportName);
     vector<FlightInfo*> SHT9X = airports.getFlightsByCallsign(testCallsignSHT9X);
     airports.regenerate_db();
     return 0;
 }
 
-//test
-
-
 //Main Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SupportFunctions::regenerate_db()
+void System::regenerate_db()
 {
-    AllAirports* airports = allAirportsPtr;
+    //System* airports = allAirportsPtr;
     vector<string> airportsNamesVector;
     getAllAirportsNames(airportsNamesVector);
-    delete airports; //destructor will free all allocated memory
+    //delete airports; //destructor will free all allocated memory
 
     fs::path currentPath = fs::current_path();
     string projectPath = currentPath;
@@ -40,11 +36,11 @@ void SupportFunctions::regenerate_db()
     load_db();
 }
 
-void SupportFunctions::load_db(AllAirports* airports) {
-    airports = new AllAirports();
+void System::load_db()
+{
     vector<string> paths;
 
-    vector<SingleAirport*> airpoprtsVector = airports->getAirportsVector();
+    vector<SingleAirport*> airpoprtsVector = getAirportsVector();
 
     getAllPaths(paths);
     //for each airport there are 2 paths (apt, dpt)
@@ -52,7 +48,6 @@ void SupportFunctions::load_db(AllAirports* airports) {
 
     for (int i = 0; i < numberOfAirports; i++)
     {
-        //the order of the paths 0 - airport1, 1 - airport1, 2 - airport2, 3 - airport2...
         SingleAirport* currentAirport = new SingleAirport(getAirportNameFromPath(paths[2*i]));
 
         //one of calls below is for .apt and the second is .dpt - unorginized order
@@ -60,12 +55,13 @@ void SupportFunctions::load_db(AllAirports* airports) {
         currentAirport->updateAirportDataFlights(paths[(2 * i) + 1]);
 
         airpoprtsVector.push_back(currentAirport);
- 
     }
     loaded_DB = true;
 }
 
-SingleAirport& AllAirports::getAirportByName(string& airportName) {
+
+SingleAirport& System::getAirportByName(string& airportName) 
+{
 
     //if (loaded_DB == false)
       //  load_db();
@@ -80,7 +76,7 @@ SingleAirport& AllAirports::getAirportByName(string& airportName) {
     
 }
 
-vector<FlightInfo*> AllAirports::getFlightsByCallsign(string& callsign)
+vector<FlightInfo*> System::getFlightsByCallsign(string& callsign)
 {    
     vector<FlightInfo*> flightsByCallsign;
 
@@ -102,13 +98,13 @@ vector<FlightInfo*> AllAirports::getFlightsByCallsign(string& callsign)
 
 }
 
-//Helpers functions
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//--------------------------------------Helpers functions-----------------------------------------
 void SingleAirport::updateAirportDataFlights(string& path)
 {
     string currentLine;
+    FlightInfo* currentFlightInfo;
     //apt / dpt
-    string pathType = SupportFunctions::getPathType(path);
+    string pathType = getPathType(path);
     ifstream currentFile(path);
 
     if (!currentFile.is_open()) {
@@ -123,8 +119,8 @@ void SingleAirport::updateAirportDataFlights(string& path)
     {
         getline(currentFile, currentLine);
         char* currentLineAsChar = (char*)currentLine.c_str();
-        FlightInfo* currentFlightInfo = FlightInfo::getCurrentFlightInfo(currentLineAsChar, pathType);
-        addFlightToAirport(*currentFlightInfo);
+        currentFlightInfo->getCurrentFlightInfo(currentFlightInfo, currentLineAsChar, pathType);
+        //currentFlightInfo->addFlightToAirport(*this);
 
     }
 
@@ -137,9 +133,8 @@ void SingleAirport::updateAirportDataFlights(string& path)
 ///////********what if currentLine is empty? error message? ********
 
 //problems with nulls - inserting last flight values
-FlightInfo* FlightInfo::getCurrentFlightInfo(char* currentLine, string& pathType) {
+ void FlightInfo::getCurrentFlightInfo(FlightInfo* flight, char* currentLine, string& pathType) {
     const char delim[] = ", ";
-    // all needed variables for FlightInfo
     string icao24, estDepartureAirport, estArrivalAirport, callsign;
     int firstSeen, lastSeen;
 
@@ -183,14 +178,14 @@ FlightInfo* FlightInfo::getCurrentFlightInfo(char* currentLine, string& pathType
     }
     if (pathType == "apt")
     {
-        return new FlightInfo('a', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign);
+        flight = new FlightInfo('a', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign);
     } else
     {
-        return new FlightInfo('d', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign);
+        flight = new FlightInfo('d', icao24, firstSeen, estDepartureAirport, lastSeen, estArrivalAirport, callsign);
     }
 }
 
-void SupportFunctions::getAllPaths(vector<string> & paths)
+void System::getAllPaths(vector<string> & paths)
 {
     fs::path currentPath = fs::current_path();
     string path = currentPath;
@@ -210,7 +205,7 @@ void SupportFunctions::getAllPaths(vector<string> & paths)
 }
 
 
-string SupportFunctions::getAirportNameFromPath(string& path) {
+string System::getAirportNameFromPath(string& path) {
     string airportName;
     size_t lastSlashPos = path.find_last_of("/");
     airportName = path.substr(lastSlashPos + 1);
@@ -219,7 +214,7 @@ string SupportFunctions::getAirportNameFromPath(string& path) {
     return airportName;
 }
 
-string SupportFunctions::getPathType(string& path)
+string System::getPathType(string& path)
 {
     string pathType;
     size_t dotPos = path.find_last_of(".");
@@ -229,7 +224,7 @@ string SupportFunctions::getPathType(string& path)
 
 
 
-void AllAirports::getAllAirportsNames(vector<string>& airportsNamesVector) { 
+void System::getAllAirportsNames(vector<string>& airportsNamesVector) { 
     
     
     for (auto& airport: airportsVector)
@@ -237,3 +232,53 @@ void AllAirports::getAllAirportsNames(vector<string>& airportsNamesVector) {
 }
 
 // /home/...../EGGK/EKKL.apt
+
+
+
+
+//Prev functions !!!!
+
+/*void SupportFunctions::regenerate_db()
+{
+    AllAirports* airports = allAirportsPtr;
+    vector<string> airportsNamesVector;
+    getAllAirportsNames(airportsNamesVector);
+    delete airports; //destructor will free all allocated memory
+
+    fs::path currentPath = fs::current_path();
+    string projectPath = currentPath;
+    string airportNames = "";
+    for (auto& name:airportsNamesVector) 
+        airportNames += name += " ";
+
+    //delete previous DB
+    system(((projectPath + "/clean.sh ") += airportNames).c_str());
+    //create data base
+    system(((projectPath + "/flightScanner.sh ") += airportNames).c_str());
+    load_db();
+}*/
+
+/*void SupportFunctions::load_db(AllAirports* airports) {
+    airports = new AllAirports();
+    vector<string> paths;
+
+    vector<SingleAirport*> airpoprtsVector = airports->getAirportsVector();
+
+    getAllPaths(paths);
+    //for each airport there are 2 paths (apt, dpt)
+    int numberOfAirports = paths.size() / 2;
+
+    for (int i = 0; i < numberOfAirports; i++)
+    {
+        //the order of the paths 0 - airport1, 1 - airport1, 2 - airport2, 3 - airport2...
+        SingleAirport* currentAirport = new SingleAirport(getAirportNameFromPath(paths[2*i]));
+
+        //one of calls below is for .apt and the second is .dpt - unorginized order
+        currentAirport->updateAirportDataFlights(paths[2 * i]);
+        currentAirport->updateAirportDataFlights(paths[(2 * i) + 1]);
+
+        airpoprtsVector.push_back(currentAirport);
+ 
+    }
+    loaded_DB = true;
+}*/
