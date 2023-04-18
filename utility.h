@@ -5,6 +5,7 @@
 #include <string>
 #include <cstring>
 #include <filesystem>
+#include <algorithm>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -36,13 +37,15 @@ public:
     vector<SingleAirport *> getAirportsVector() const { return airportsVector; }
     void getAllAirportsNames(vector<string> &airportNames);
     vector<FlightInfo *> getFlightsByCallsign(string &callsign);
-    SingleAirport& getAirportByName(string& airportName);
+    int getAirportIndexByName(string& airportName);
     bool loaded_DB;
     static string getPathType(string &path);
     void getAllPaths(vector<string> &paths);
     string getAirportNameFromPath(string &path);
     void load_db();
     void regenerate_db();
+    void printAirportArv(string& IcoaCode);
+    void printFullAirportSchedule(string& IcoaCode);
 };
 
 
@@ -111,6 +114,10 @@ public:
     char getArvOrDpt() const {return arvOrDpt; }
     string getCallsign()const { return callsign; }
     FlightInfo* getCurrentFlightInfo(char* currentLine, string& pathType);
+    string getEstDepartureAirport() const {return estDepartureAirport;}
+    string getFirstSeen() const { return to_string(firstSeen); }
+    string getLastSeen() const { return to_string(lastSeen); }
+    void printFullAirportSchedule(string& IcoaCode);
     void addFlightToAirport(SingleAirport& airport)
     {
         if (getArvOrDpt() == 'a')

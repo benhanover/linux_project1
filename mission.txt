@@ -1,6 +1,5 @@
-1.	Receive airport ICOA code names and output(print) a table of which airports have flights to the given airports and the flight details. 
-input : airport icao code names
-plan : go threw all input airoport and print the 
+1. Receive airport ICOA code names and output(print) a table of which airports have flights to the given airports and the flight details. 
+printAirportArv
 
 function: getFlightsByAirportName
 

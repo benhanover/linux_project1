@@ -7,24 +7,61 @@ int main()
     System airports;
     airports.load_db();
     string testAirportName = "EGKK", testCallsignSHT9X = "EZY71FK";
-    SingleAirport EGKK = airports.getAirportByName(testAirportName);
-    vector<FlightInfo*> EZY71FK = airports.getFlightsByCallsign(testCallsignSHT9X);
-    airports.regenerate_db();
+    // SingleAirport EGKK = airports.getAirportIndexByName(testAirportName);
+    // vector<FlightInfo*> EZY71FK = airports.getFlightsByCallsign(testCallsignSHT9X);
+    // airports.regenerate_db();
+    airports.printAirportArv(testAirportName);
+    airports.printFullAirportSchedule(testAirportName);
     return 0;
 }
 
 //----------------------------------------Main Functions-----------------------------------------
 
+void System::printFullAirportSchedule(string& IcoaCode)
+{
+    int index = getAirportIndexByName(IcoaCode);
+    vector<FlightInfo*> combine;
 
-SingleAirport& System::getAirportByName(string& airportName)
+    combine.reserve(airportsVector[index]->getArivals().size() + airportsVector[index]->getDepartures().size());
+
+    for(auto& flightInfo: airportsVector[index]->getArivals())
+        combine.push_back(flightInfo);
+        
+    for(auto& flightInfo: airportsVector[index]->getDepartures())
+        combine.push_back(flightInfo);
+
+    sort(combine.begin(), combine.end(), [](FlightInfo *f1, FlightInfo *f2)
+         { return (stoi(f1->getFirstSeen()) < stoi(f2->getFirstSeen())); });
+
+    for (auto& flightInfo: combine)
+    {
+        if (flightInfo->getArvOrDpt() == 'a')
+            cout << "Flight #" << flightInfo->getCallsign() << " arriving from " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getLastSeen() << endl;
+        else
+            cout << "Flight #" << flightInfo->getCallsign() << " departing to " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getLastSeen() << endl;
+    }
+}
+
+
+void System::printAirportArv(string& IcoaCode)
+{
+    int airportIndex = getAirportIndexByName(IcoaCode);
+    for (auto& flightInfo: airportsVector[airportIndex]->getArivals())
+    {
+        cout << "Flight #" << flightInfo->getCallsign() << " arriving from " << flightInfo->getEstDepartureAirport() << ", tookoff at " << flightInfo->getFirstSeen() <<  " landed at " << flightInfo->getLastSeen() << endl;
+    }
+}
+int System::getAirportIndexByName(string& airportName)
 {
     while(true)
     {
-
-        for (auto& airport : this->airportsVector)
+        int index = 0;
+        for (auto& airport : airportsVector)
         {
             if (airport->getIcaoCode() == airportName)
-                return *airport;
+                return index;
+            else
+                index++;
         }
         cout << "Airport name doesn't exist!" << endl;
         cout << "Please enter new name.";
@@ -221,6 +258,6 @@ string System::getPathType(string& path)
 void System::getAllAirportsNames(vector<string>& airportsNamesVector) { 
     
     
-    for (auto& airport: this->airportsVector)
+    for (auto& airport: airportsVector)
        airportsNamesVector.push_back(airport->getIcaoCode());
 }

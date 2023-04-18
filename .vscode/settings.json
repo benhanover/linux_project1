@@ -1,10 +1,5 @@
 {
-    "cmake.configureOnOpen": true,
     "files.associations": {
-        "filesystem": "cpp",
-        "iostream": "cpp",
-        "new": "cpp",
-        "vector": "cpp",
-        "iosfwd": "cpp"
+        "*.tcc": "cpp"
     }
 }
