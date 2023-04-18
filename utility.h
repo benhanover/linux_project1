@@ -27,6 +27,7 @@ public:
     {
         airportsVector.push_back(airport);
     }
+    void printAircraftFlights(string& icao24);
     vector<SingleAirport *> getAirportsVector() const { return airportsVector; }
     void getAllAirportsNames(vector<string> &airportNames);
     vector<FlightInfo *> getFlightsByCallsign(string &callsign);
@@ -106,9 +107,11 @@ public:
     char getArvOrDpt() const {return arvOrDpt; }
     string getCallsign()const { return callsign; }
     FlightInfo* getCurrentFlightInfo(char* currentLine, string& pathType);
+    string getEstArrivalAirport() const {return estArrivalAirport;}
     string getEstDepartureAirport() const {return estDepartureAirport;}
     string getFirstSeen() const { return to_string(firstSeen); }
     string getLastSeen() const { return to_string(lastSeen); }
+    string getAircraftName() const{return icao24;}
     void printFullAirportSchedule(string& IcoaCode);
     void addFlightToAirport(SingleAirport& airport)
     {

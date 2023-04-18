@@ -6,19 +6,50 @@ int main()
 {
     System airports;
     airports.load_db();
-    string testAirportName = "EGKK", testCallsignSHT9X = "EZY71FK";
-    //SingleAirport EGKK = airports.getAirportIndexByName(testAirportName);
-    vector<FlightInfo*> EZY71FK = airports.getFlightsByCallsign(testCallsignSHT9X);
+    string testAirportName = "EGKK", testCallsignSHT9X = "EZY71FK", testIcao24 = "40097c";
+    //Mission 2.1
+    cout << "Mission 2.1" <<endl;
+    airports.printAirportArv(testAirportName);
+    //Mission 2.2
+    cout << "Mission 2.2" <<endl;
+    airports.printFullAirportSchedule(testAirportName);
+    //Mission 2.3
+    cout << "Mission 2.3" <<endl;
+    airports.printAircraftFlights(testIcao24);
+    //Mission 2.4
+    cout << "Mission 2.4" <<endl;
     airports.regenerate_db();
-    //airports.printAirportArv(testAirportName);
-    //airports.printFullAirportSchedule(testAirportName);
-
     airports.deleteAll();
     cout << "Goodby!" << endl;
     return 0;
 }
 
 //----------------------------------------Main Functions-----------------------------------------
+
+void System::printAircraftFlights(string& icao24)
+{
+    string aircraftName;
+    for(auto& airport: airportsVector)
+    {
+        for (auto& flightInfo: airport->getArivals())
+        {
+            if(flightInfo->getAircraftName() == icao24)
+            {
+                cout << icao24 << " departed from  " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getFirstSeen() <<  " arrived in " 
+                  << flightInfo->getEstArrivalAirport() << " at " <<flightInfo->getLastSeen() << endl;
+            }
+        }
+        for (auto& flightInfo: airport->getDepartures())
+        {
+            if(flightInfo->getAircraftName() == icao24)
+            {
+                cout << flightInfo->getAircraftName() << " departed from  " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getFirstSeen() <<  " arrived in " 
+                    << flightInfo->getEstArrivalAirport() << " at " <<flightInfo->getLastSeen() << endl;
+            }
+        }
+    }
+}
+
 
 void System::deleteAll()
 {
