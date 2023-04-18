@@ -46,7 +46,6 @@ public:
 };
 
 
-
 class SingleAirport : public System
 {
 private:
@@ -78,14 +77,7 @@ public:
     string getIcaoCode() const { return icaoCode;} 
     vector<FlightInfo*> getArivals() const { return arrivals; }
     vector<FlightInfo*> getDepartures() const { return departures; }
-    
-    /*void addFlightToAirport(FlightInfo &flight)
-    {
-        if (flight.getArvOrDpt() == 'a')
-            arrivals.push_back(&flight);
-        else // arvOrDpt == 'd'
-            departures.push_back(&flight);
-    }*/
+
     void setIcaoCode(const string &airportName)
     {
         icaoCode = airportName;
@@ -118,7 +110,7 @@ public:
     }
     char getArvOrDpt() const {return arvOrDpt; }
     string getCallsign()const { return callsign; }
-    void getCurrentFlightInfo(FlightInfo* flight, char* currentLine, string& pathType);
+    FlightInfo* getCurrentFlightInfo(char* currentLine, string& pathType);
     void addFlightToAirport(SingleAirport& airport)
     {
         if (getArvOrDpt() == 'a')
@@ -127,16 +119,3 @@ public:
             airport.departures.push_back(this);
     }
 };
-
-
-
-/*class SupportFunctions 
-{
-    public:
-    bool loaded_DB;
-    static string getPathType(string &path);
-    void getAllPaths(vector<string> &paths);
-    string getAirportNameFromPath(string &path);
-    void load_db(AllAirports* airports);
-    void regenerate_db();
-};*/
