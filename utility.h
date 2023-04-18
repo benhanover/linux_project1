@@ -22,14 +22,7 @@ public:
     {
         airportsVector.reserve(10);
     }
-    ~System()
-    {
-         for(vector<SingleAirport *>::iterator it = airportsVector.begin(); it != airportsVector.end(); ++it)
-        {
-            delete *it;
-        }
-        airportsVector.clear();
-    }
+    void deleteAll();
     void addAirport(SingleAirport* airport)
     {
         airportsVector.push_back(airport);
@@ -38,7 +31,6 @@ public:
     void getAllAirportsNames(vector<string> &airportNames);
     vector<FlightInfo *> getFlightsByCallsign(string &callsign);
     int getAirportIndexByName(string& airportName);
-    bool loaded_DB;
     static string getPathType(string &path);
     void getAllPaths(vector<string> &paths);
     string getAirportNameFromPath(string &path);
@@ -75,7 +67,7 @@ public:
             delete *it;
         }
         departures.clear();
-
+        cout << "delete single airport" << endl;
     }
     string getIcaoCode() const { return icaoCode;} 
     vector<FlightInfo*> getArivals() const { return arrivals; }

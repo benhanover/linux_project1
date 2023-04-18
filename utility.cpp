@@ -7,15 +7,28 @@ int main()
     System airports;
     airports.load_db();
     string testAirportName = "EGKK", testCallsignSHT9X = "EZY71FK";
-    // SingleAirport EGKK = airports.getAirportIndexByName(testAirportName);
-    // vector<FlightInfo*> EZY71FK = airports.getFlightsByCallsign(testCallsignSHT9X);
-    // airports.regenerate_db();
-    airports.printAirportArv(testAirportName);
-    airports.printFullAirportSchedule(testAirportName);
+    //SingleAirport EGKK = airports.getAirportIndexByName(testAirportName);
+    vector<FlightInfo*> EZY71FK = airports.getFlightsByCallsign(testCallsignSHT9X);
+    airports.regenerate_db();
+    //airports.printAirportArv(testAirportName);
+    //airports.printFullAirportSchedule(testAirportName);
+
+    airports.deleteAll();
+    cout << "Goodby!" << endl;
     return 0;
 }
 
 //----------------------------------------Main Functions-----------------------------------------
+
+void System::deleteAll()
+{
+    for (auto& airport : airportsVector)
+    {
+        delete airport;
+
+    }
+    airportsVector.clear();
+}
 
 void System::printFullAirportSchedule(string& IcoaCode)
 {
@@ -82,6 +95,7 @@ void System::regenerate_db()
 
     //delete previous DB
     system(((projectPath + "/clean.sh ") += airportNames).c_str());
+    deleteAll();
     //create data base
     system(((projectPath + "/flightScanner.sh ") += airportNames).c_str());
     load_db();
@@ -106,7 +120,6 @@ void System::load_db()
 
         airportsVector.push_back(currentAirport);
     }
-    loaded_DB = true;
 }
 
 vector<FlightInfo*> System::getFlightsByCallsign(string& callsign)
