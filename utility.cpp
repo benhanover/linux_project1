@@ -2,7 +2,7 @@
 
 #define nullNumFlag -1
 
-int main()
+/*int main()
 {
     System airports;
     airports.load_db();
@@ -22,7 +22,7 @@ int main()
     airports.deleteAll();
     cout << "Goodby!" << endl;
     return 0;
-}
+}*/
 
 //----------------------------------------Main Functions-----------------------------------------
 
