@@ -6,12 +6,12 @@ int main(int argc, char* argv[])
 {
     System airports;
     airports.load_db();
-    string curAirport;
+    string curAircraftName;
     
     for(int i = 1; i < argc; i++)
     {
-        curAirport = argv[i]; 
-        airports.printAirportArv(curAirport);
+        curAircraftName = argv[i]; 
+        airports.printAircraftFlights(curAircraftName);
     }
     return 0;
 }
