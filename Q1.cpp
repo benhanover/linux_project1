@@ -1,4 +1,6 @@
 #include "utility.h"
+/*Recieve airport ICOA code names and output(print) a table of which airports have flights
+to the given airports and the flight details.*/
 
 int main(int argc, char* argv[])
 {

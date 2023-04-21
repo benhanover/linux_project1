@@ -2,7 +2,7 @@
 
 #define nullNumFlag -1
 
-/*int main()
+int main()
 {
     System airports;
     airports.load_db();
@@ -17,12 +17,12 @@
     cout << "Mission 2.3" <<endl;
     airports.printAircraftFlights(testIcao24);
     //Mission 2.4
-    cout << "Mission 2.4" <<endl;
+    cout << "Mission 2.3" <<endl;
     airports.regenerate_db();
     airports.deleteAll();
     cout << "Goodby!" << endl;
     return 0;
-}*/
+}
 
 //----------------------------------------Main Functions-----------------------------------------
 
