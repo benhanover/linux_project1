@@ -5,11 +5,11 @@ int main(int argc, char* argv[])
 {
     System airports;
     airports.load_db();
-    string curAirport;
+    string curAircraft;
     for(int i = 1; i < argc; i++)
     {
-        curAirport = argv[i];
-        airports.printAirportArv(curAirport);
+        curAircraft = argv[i];
+        airports.printAircraftFlights(curAircraft);
     }
     return 0;
 }
