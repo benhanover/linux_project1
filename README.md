@@ -22,5 +22,8 @@ Run:<pre>make</pre><br>
 ### Q3: Run <pre> ./airplane.out (aircraft icao24 names)</pre><br>
 **Example:** <pre>./airplane.out 4c808e 73806a</pre><br>
 ### Q4: Run <pre>./updateDB.out</pre><br>
+### **Step five**: if you want to clean all the ".o/.out" files Run:<br>
+<pre> make clean</pre>
+
 
 
