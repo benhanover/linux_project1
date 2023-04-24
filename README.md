@@ -19,12 +19,16 @@ Run: <pre>./flightScanner.sh (airports icao names)</pre><br>
 ### **Step three**: compile the project<br>
 Run:<pre>make</pre><br>
 ### **Step four**: test the project according to each program<br>
-### Q1:<br> Run <pre> ./arrivals.out (airport icao names)</pre><br>
+### Q1:<br>
+Run <pre> ./arrivals.out (airport icao names)</pre><br>
 **Example:** <pre>./arrivals.out EGGW EGLL LLBG EGKK</pre><br>
-### Q2:<br> Run <pre> ./full_schedule.out (airport icao name)</pre><br>
+### Q2:<br>
+Run <pre> ./full_schedule.out (airport icao name)</pre><br>
 **Example:** <pre>./full_schedule.out EGGW</pre><br>
-### Q3:<br> Run <pre> ./airplane.out (aircraft icao24 names)</pre><br>
+### Q3:<br>
+Run <pre> ./airplane.out (aircraft icao24 names)</pre><br>
 **Example:** <pre>./airplane.out 4c808e 73806a</pre><br>
-### Q4:<br> Run <pre>./updateDB.out</pre><br>
-### **Step five**: if you want to clean all the ".o/.out" files Run:<br>
+### Q4:<br>
+Run <pre>./updateDB.out</pre><br>
+### **Step five**: clean all the ".o/.out/so" files :<br>
 Run <pre>make clean</pre>
