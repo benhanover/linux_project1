@@ -2,54 +2,7 @@
 
 #define nullNumFlag -1
 
-/*int main()
-{
-    System airports;
-    airports.load_db();
-    string testAirportName = "EGKK", testCallsignSHT9X = "EZY71FK", testIcao24 = "40097c";
-    //Mission 2.1
-    cout << "Mission 2.1" <<endl;
-    airports.printAirportArv(testAirportName);
-    //Mission 2.2
-    cout << "Mission 2.2" <<endl;
-    airports.printFullAirportSchedule(testAirportName);
-    //Mission 2.3
-    cout << "Mission 2.3" <<endl;
-    airports.printAircraftFlights(testIcao24);
-    //Mission 2.4
-    cout << "Mission 2.3" <<endl;
-    airports.regenerate_db();
-    airports.deleteAll();
-    cout << "Goodby!" << endl;
-    return 0;
-}*/
-
 //----------------------------------------Main Functions-----------------------------------------
-
-void System::printAircraftFlights(string& icao24)
-{
-    string aircraftName;
-    for(auto& airport: airportsVector)
-    {
-        for (auto& flightInfo: airport->getArivals())
-        {
-            if(flightInfo->getAircraftName() == icao24)
-            {
-                cout << icao24 << " departed from  " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getFirstSeen() <<  " arrived in " 
-                  << flightInfo->getEstArrivalAirport() << " at " <<flightInfo->getLastSeen() << endl;
-            }
-        }
-        for (auto& flightInfo: airport->getDepartures())
-        {
-            if(flightInfo->getAircraftName() == icao24)
-            {
-                cout << flightInfo->getAircraftName() << " departed from  " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getFirstSeen() <<  " arrived in " 
-                    << flightInfo->getEstArrivalAirport() << " at " <<flightInfo->getLastSeen() << endl;
-            }
-        }
-    }
-}
-
 
 void System::deleteAll()
 {
@@ -61,40 +14,6 @@ void System::deleteAll()
     airportsVector.clear();
 }
 
-void System::printFullAirportSchedule(string& IcoaCode)
-{
-    int index = getAirportIndexByName(IcoaCode);
-    vector<FlightInfo*> combine;
-
-    combine.reserve(airportsVector[index]->getArivals().size() + airportsVector[index]->getDepartures().size());
-
-    for(auto& flightInfo: airportsVector[index]->getArivals())
-        combine.push_back(flightInfo);
-        
-    for(auto& flightInfo: airportsVector[index]->getDepartures())
-        combine.push_back(flightInfo);
-
-    sort(combine.begin(), combine.end(), [](FlightInfo *f1, FlightInfo *f2)
-         { return (stoi(f1->getFirstSeen()) < stoi(f2->getFirstSeen())); });
-
-    for (auto& flightInfo: combine)
-    {
-        if (flightInfo->getArvOrDpt() == 'a')
-            cout << "Flight #" << flightInfo->getCallsign() << " arriving from " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getLastSeen() << endl;
-        else
-            cout << "Flight #" << flightInfo->getCallsign() << " departing to " << flightInfo->getEstDepartureAirport() << " at " << flightInfo->getLastSeen() << endl;
-    }
-}
-
-
-void System::printAirportArv(string& IcoaCode)
-{
-    int airportIndex = getAirportIndexByName(IcoaCode);
-    for (auto& flightInfo: airportsVector[airportIndex]->getArivals())
-    {
-        cout << "Flight #" << flightInfo->getCallsign() << " arriving from " << flightInfo->getEstDepartureAirport() << ", tookoff at " << flightInfo->getFirstSeen() <<  " landed at " << flightInfo->getLastSeen() << endl;
-    }
-}
 int System::getAirportIndexByName(string& airportName)
 {
     while(true)
@@ -107,8 +26,8 @@ int System::getAirportIndexByName(string& airportName)
             else
                 index++;
         }
-        cout << "Airport name doesn't exist!" << endl;
-        cout << "Please enter new name.";
+        cout << "Airport name doesn't exist in the database." << endl;
+        cout << "Please enter new name." << endl;
         cin >> airportName;
     }
 }
@@ -129,15 +48,14 @@ void System::regenerate_db()
     deleteAll();
     //create data base
     system(((projectPath + "/flightScanner.sh ") += airportNames).c_str());
-    load_db();
+    vector<string> paths;
+    paths.reserve(10);
+    getAllPaths(paths);
+    load_db(paths);
 }
 
-void System::load_db()
+void System::load_db(vector<string>& paths)
 {
-    vector<string> paths;
-
-
-    getAllPaths(paths);
     //for each airport there are 2 paths (apt, dpt)
     int numberOfAirports = paths.size() / 2;
 
@@ -264,12 +182,11 @@ void SingleAirport::updateAirportDataFlights(string& path)
     }
 }
 
-void System::getAllPaths(vector<string> & paths)
+void System::getAllPaths(vector<string>& paths)
 {
     fs::path currentPath = fs::current_path();
     string path = currentPath;
     
-
     for (const auto& entry : fs::recursive_directory_iterator(path))
     {
         if (fs::is_directory(entry.path()))
@@ -282,7 +199,8 @@ void System::getAllPaths(vector<string> & paths)
     }
 }
 
-string System::getAirportNameFromPath(string& path) {
+string System::getAirportNameFromPath(string& path)
+{
     string airportName;
     size_t lastSlashPos = path.find_last_of("/");
     airportName = path.substr(lastSlashPos + 1);
@@ -304,4 +222,56 @@ void System::getAllAirportsNames(vector<string>& airportsNamesVector) {
     
     for (auto& airport: airportsVector)
        airportsNamesVector.push_back(airport->getIcaoCode());
+}
+
+
+bool System::checkIfAllInDB(vector<string>& paths, vector<string>& missing_names, int numOfCodesRecieved, char** codesRecievedArr)
+{
+    int pathsIndex,namesIndex,numberOfAirports;
+    vector<string> airportsNamesVector;
+    
+    numberOfAirports = paths.size() / 2;
+    pathsIndex = 0;
+
+    for (int namesIndex = 0; namesIndex < numberOfAirports ; namesIndex++)
+    {
+        string curName = getAirportNameFromPath(paths[pathsIndex]);
+        airportsNamesVector.push_back(curName); 
+        pathsIndex += 2; //different name every 2 paths (1 for arv file and 1 for dpt file - always adjacent)
+
+    }
+
+    // Iterate over the array of arguments recieved.
+    for (int i = 1; i < numOfCodesRecieved; i++)
+    {
+        string codeString = codesRecievedArr[i];
+        // Check if the current code (argument) is in the vector.
+        if (find(airportsNamesVector.begin(), airportsNamesVector.end(), codeString) == airportsNamesVector.end())
+            missing_names.push_back(codeString);
+            // The current name is not in the vector.
+
+    }
+
+    if (missing_names.empty())
+        return true; //no missing names, all arguments in DB
+    else 
+        return false;
+
+}
+
+bool System::isAircraftInDB(string code)
+{
+    for (auto airport : airportsVector)
+    {
+        vector<FlightInfo*> arrivals = airport->getArivals();
+        vector<FlightInfo*> departures = airport->getDepartures();
+        for (auto flightInfo : arrivals)
+            if (flightInfo->getIcao24() == code)   
+                return true;
+        for (auto flightInfo : departures)
+            if (flightInfo->getIcao24() == code)   
+                return true;
+    }
+
+    return false;
 }

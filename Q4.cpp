@@ -4,7 +4,10 @@
 int main(int argc, char* argv[])
 {
     System airports;
-    airports.load_db();
+    vector<string> paths;
+    paths.reserve(10);
+    airports.getAllPaths(paths);
+    airports.load_db(paths);
     airports.regenerate_db();
     return 0;
 }

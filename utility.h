@@ -22,12 +22,16 @@ public:
     {
         airportsVector.reserve(10);
     }
+    ~System()
+    {
+       deleteAll(); 
+    }    
     void deleteAll();
     void addAirport(SingleAirport* airport)
     {
         airportsVector.push_back(airport);
     }
-    void printAircraftFlights(string& icao24);
+
     vector<SingleAirport *> getAirportsVector() const { return airportsVector; }
     void getAllAirportsNames(vector<string> &airportNames);
     vector<FlightInfo *> getFlightsByCallsign(string &callsign);
@@ -35,10 +39,10 @@ public:
     static string getPathType(string &path);
     void getAllPaths(vector<string> &paths);
     string getAirportNameFromPath(string &path);
-    void load_db();
+    bool checkIfAllInDB(vector<string>& paths, vector<string>& missing_names, int numOfCodesRecieved, char** codesRecievedArr);
+    void load_db(vector<string>& paths);
     void regenerate_db();
-    void printAirportArv(string& IcoaCode);
-    void printFullAirportSchedule(string& IcoaCode);
+    bool isAircraftInDB(string code);
 };
 
 
@@ -60,7 +64,9 @@ public:
     ~SingleAirport()
     {
         for(vector<FlightInfo*>::iterator it = arrivals.begin(); it != arrivals.end(); ++it)
+          {
             delete *it;
+          } 
         arrivals.clear();
         
         for(vector<FlightInfo*>::iterator it = departures.begin(); it != departures.end(); ++it)
@@ -105,6 +111,7 @@ public:
         callsign = _callsign;
     }
     char getArvOrDpt() const {return arvOrDpt; }
+    string getIcao24() const {return icao24; }
     string getCallsign()const { return callsign; }
     FlightInfo* getCurrentFlightInfo(char* currentLine, string& pathType);
     string getEstArrivalAirport() const {return estArrivalAirport;}
@@ -112,7 +119,6 @@ public:
     string getFirstSeen() const { return to_string(firstSeen); }
     string getLastSeen() const { return to_string(lastSeen); }
     string getAircraftName() const{return icao24;}
-    void printFullAirportSchedule(string& IcoaCode);
     void addFlightToAirport(SingleAirport& airport)
     {
         if (getArvOrDpt() == 'a')

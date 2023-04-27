@@ -17,11 +17,15 @@ for ICAO in $@; do
         echo "creating apt and dpt files for $ICAO"
         cd ./"$ICAO"
         
-        curl -s "https://opensky-network.org/api/flights/arrival?airport=$ICAO&begin=$yesterday&end=$today" | python3 -m json.tool | tr -d '[/]/{/}/,/"' | awk '{print $2}' | awk NF | xargs -n12 | sed 's/ /,/g' | sed '1i icao24,firstSeen,estDepartureAirport,lastSeen,estArrivalAirport,callsign,estDepartureAirportHorizDistance,estDepartureAirportVertDistance,estArrivalAirportHorizDistance,estArrivalAirportVertDistance,departureAirportCandidatesCount,arrivalAirportCandidatesCount' > $ICAO.apt
-            
-        curl -s "https://opensky-network.org/api/flights/departure?airport=$ICAO&begin=$yesterday&end=$today" | python3 -m json.tool | tr -d '[/]/{/}/,/"' | awk '{print $2}' | awk NF | xargs -n12 | sed 's/ /,/g' | sed '1i icao24,firstSeen,estDepartureAirport,lastSeen,estArrivalAirport,callsign,estDepartureAirportHorizDistance,estDepartureAirportVertDistance,estArrivalAirportHorizDistance,estArrivalAirportVertDistance,departureAirportCandidatesCount,arrivalAirportCandidatesCount' > $ICAO.dpt
+        curl -s "https://opensky-network.org/api/flights/arrival?airport=$ICAO&begin=$yesterday&end=$today" |
+        python3 -m json.tool | tr -d '[/]/{/}/,/"' | awk '{print $2}' | awk NF | xargs -n12 | sed 's/ /,/g' | cut -d, -f1-6 |
+        sed '1i icao24,firstSeen,estDepartureAirport,lastSeen,estArrivalAirport,callsign' > $ICAO.apt
 
-                
+
+        curl -s "https://opensky-network.org/api/flights/departure?airport=$ICAO&begin=$yesterday&end=$today" |
+        python3 -m json.tool | tr -d '[/]/{/}/,/"' | awk '{print $2}' | awk NF | xargs -n12 | sed 's/ /,/g' | cut -d, -f1-6 |
+        sed '1i icao24,firstSeen,estDepartureAirport,lastSeen,estArrivalAirport,callsign' > $ICAO.dpt
+                      
         cd ../
     fi
 done
